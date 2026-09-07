@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { getMangaDetails, getChapterImages, getMangaChapters } from "@/lib/mangadex";
+import { getMangaDetails, getChapterImages, getMangaChapters } from "@/lib/mangadex-server";
 import { WebtoonReader } from "@/components/reader/WebtoonReader";
 import type { Chapter } from "@/lib/types";
 

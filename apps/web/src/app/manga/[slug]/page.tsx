@@ -1,11 +1,7 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
-import {
-  getMangaDetails,
-  getMangaChapters,
-  getPopularManga,
-  toHighResCoverUrl,
-} from "@/lib/mangadex";
+import { getMangaDetails, getMangaChapters } from "@/lib/mangadex-server";
+import { getPopularManga, toHighResCoverUrl } from "@/lib/mangadex";
 import { getBannerForManga } from "@/lib/banners";
 import { CONTENT_LANGUAGES } from "@/lib/settings";
 import { MangaDetails } from "@/components/manga/MangaDetails";
