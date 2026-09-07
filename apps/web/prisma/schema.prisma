@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model CatalogTitle {
+  id                String   @id @default(cuid())
+  canonicalTitle    String
+  altTitles         Json     @default("[]")
+  normalizedTitle   String   @unique
+  description       String?  
+  status            String?
+  type              String?
+  originalLanguage  String?
+  year              Int?
+  contentRating     String?
+  coverUrl          String?
+  bannerUrl         String?
+  authors           Json
+  artists           Json
+  tags              Json
+  relations         Json
+  links             Json
+  metadata          Json
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastEnrichedAt    DateTime?
+
+  identities CatalogIdentity[]
+  chapters   CatalogChapter[]
+
+  @@index([canonicalTitle])
+  @@index([updatedAt])
+}
+
+model CatalogIdentity {
+  id          String   @id @default(cuid())
+  titleId     String
+  provider    String
+  externalId  String
+  externalUrl String?
+  rawData     Json
+  fetchedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  title CatalogTitle @relation(fields: [titleId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, externalId])
+  @@index([titleId, provider])
+}
+
+model CatalogChapter {
+  id             String   @id @default(cuid())
+  titleId        String
+  chapterNumber  String?
+  volumeNumber   String?
+  chapterTitle   String?
+  language       String
+  publishedAt    DateTime?
+  pages          Int      @default(0)
+  canonicalKey   String
+  metadata       Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  title   CatalogTitle          @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  sources CatalogChapterSource[]
+
+  @@unique([titleId, canonicalKey, language])
+  @@index([titleId, chapterNumber])
+}
+
+model CatalogChapterSource {
+  id          String   @id @default(cuid())
+  chapterId   String
+  provider    String
+  externalId  String
+  sourceUrl   String?
+  pageData    Json
+  rawData     Json
+  fetchedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  chapter CatalogChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, externalId])
+  @@index([chapterId, provider])
+}
+
+model CatalogSyncJob {
+  id          String    @id @default(cuid())
+  provider    String
+  entityType  String
+  entityId    String?
+  status      String    @default("queued")
+  attempts    Int       @default(0)
+  error       String?   
+  scheduledAt DateTime  @default(now())
+  startedAt   DateTime?
+  finishedAt  DateTime?
+
+  @@index([status, scheduledAt])
+  @@index([provider, entityType])
+}
